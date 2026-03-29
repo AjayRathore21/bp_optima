@@ -42,7 +42,7 @@ queueEvents.on('failed', ({ jobId, failedReason }) => {
 /**
  * Helper function to add a job to the queue
  */
-export const addJobToQueue = async (jobId: string, fileUrl: string) => {
+export const addJobToQueue = async (jobId: string, fileUrl?: string) => {
   try {
     await documentQueue.add('process-document', {
       jobId,

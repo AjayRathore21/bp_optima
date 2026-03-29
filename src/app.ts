@@ -21,6 +21,7 @@ class App {
     this.app.use(morgan('dev'));
     this.app.use(express.json());
     this.app.use(express.urlencoded({ extended: true }));
+    this.app.use('/uploads', express.static('uploads'));
   }
 
   private initializeRoutes() {

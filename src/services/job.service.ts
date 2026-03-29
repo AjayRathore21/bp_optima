@@ -8,6 +8,9 @@ class JobService {
   public async createJob(data: CreateJobDto): Promise<IJob> {
     const newJob = new Job({
       fileUrl: data.fileUrl,
+      fileName: data.fileName,
+      originalName: data.originalName,
+      fileType: data.fileType,
       status: 'queued',
       attempts: 0,
     });
@@ -15,7 +18,8 @@ class JobService {
     const savedJob = await newJob.save();
 
     // Add to BullMQ
-    await addJobToQueue(savedJob._id.toString(), savedJob.fileUrl);
+    // Add explicitly to handle potential undefined
+    await addJobToQueue(savedJob._id.toString(), savedJob.fileUrl || savedJob.fileName);
 
     return savedJob;
   }

@@ -3,7 +3,10 @@ import mongoose, { Schema, Document } from 'mongoose';
 export type JobStatus = 'queued' | 'processing' | 'completed' | 'failed';
 
 export interface IJob extends Document {
-  fileUrl: string;
+  fileUrl?: string; // either absolute remote URL or local path
+  fileName?: string; // name in the uploads folder
+  originalName?: string; // name in the UI
+  fileType?: string;
   status: JobStatus;
   createdAt: Date;
   startedAt?: Date;
@@ -14,7 +17,10 @@ export interface IJob extends Document {
 
 const JobSchema: Schema = new Schema(
   {
-    fileUrl: { type: String, required: true },
+    fileUrl: { type: String },
+    fileName: { type: String },
+    originalName: { type: String },
+    fileType: { type: String },
     status: {
       type: String,
       enum: ['queued', 'processing', 'completed', 'failed'],
@@ -32,7 +38,10 @@ const JobSchema: Schema = new Schema(
 
 // We keep these interfaces for service layer typing
 export interface CreateJobDto {
-  fileUrl: string;
+  fileUrl?: string;
+  fileName?: string;
+  originalName?: string;
+  fileType?: string;
 }
 
 export interface UpdateJobDto {
