@@ -1,8 +1,9 @@
 import Job, { IJob, CreateJobDto, UpdateJobDto } from '../models/job.model';
+import { addJobToQueue } from '../queue/queue';
 
 class JobService {
   /**
-   * Create a new job and store it in MongoDB
+   * Create a new job and store it in MongoDB, then add it to BullMQ
    */
   public async createJob(data: CreateJobDto): Promise<IJob> {
     const newJob = new Job({
@@ -11,7 +12,12 @@ class JobService {
       attempts: 0,
     });
 
-    return await newJob.save();
+    const savedJob = await newJob.save();
+
+    // Add to BullMQ
+    await addJobToQueue(savedJob._id.toString(), savedJob.fileUrl);
+
+    return savedJob;
   }
 
   /**

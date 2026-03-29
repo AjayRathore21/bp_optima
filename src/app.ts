@@ -3,6 +3,7 @@ import cors from 'cors';
 import helmet from 'helmet';
 import morgan from 'morgan';
 import healthRoute from './routes/health.route';
+import jobRoute from './routes/job.route';
 
 class App {
   public app: Application;
@@ -24,6 +25,7 @@ class App {
 
   private initializeRoutes() {
     this.app.use('/health', healthRoute);
+    this.app.use('/jobs', jobRoute);
   }
 
   private initializeErrorHandling() {
