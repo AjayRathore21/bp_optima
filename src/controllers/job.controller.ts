@@ -19,12 +19,17 @@ class JobController {
         };
       } else {
         // Fallback to URL in body
-        const { fileUrl } = req.body;
+        const { fileUrl, webhookUrl } = req.body;
         if (!fileUrl) {
           res.status(400).json({ message: 'fileUrl or file upload is required' });
           return;
         }
-        jobData = { fileUrl };
+        jobData = { fileUrl, webhookUrl };
+      }
+
+      // If it's a file upload, check for webhookUrl from body as well
+      if (req.file && req.body.webhookUrl) {
+        jobData.webhookUrl = req.body.webhookUrl;
       }
 
       const job = await JobService.createJob(jobData);

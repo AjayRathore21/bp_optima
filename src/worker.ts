@@ -13,6 +13,8 @@ connectDB();
  */
 const delay = (ms: number) => new Promise((res) => setTimeout(res, ms));
 
+import axios from 'axios';
+
 const worker = new Worker(
   'document-processing',
   async (job: Job) => {
@@ -39,11 +41,25 @@ const worker = new Worker(
       };
 
       // 4. Update status to "completed"
-      await JobService.updateJob(jobId, {
+      const updatedJob = await JobService.updateJob(jobId, {
         status: 'completed',
         completedAt: new Date(),
         result,
       });
+
+      // 5. Trigger Webhook if exists
+      if (updatedJob?.webhookUrl) {
+        try {
+          await axios.post(updatedJob.webhookUrl, {
+            jobId: updatedJob._id,
+            status: updatedJob.status,
+            result: updatedJob.result,
+          });
+          logger.info(`Webhook successfully sent to ${updatedJob.webhookUrl}`);
+        } catch (webhookError: any) {
+          logger.error(`Webhook failed for job ${jobId}: ${webhookError.message}`);
+        }
+      }
 
       logger.info(`Job completed: ${jobId}`);
       return result;

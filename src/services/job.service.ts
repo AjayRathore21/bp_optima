@@ -8,6 +8,7 @@ class JobService {
   public async createJob(data: CreateJobDto): Promise<IJob> {
     const newJob = new Job({
       fileUrl: data.fileUrl,
+      webhookUrl: data.webhookUrl,
       fileName: data.fileName,
       originalName: data.originalName,
       fileType: data.fileType,

@@ -7,6 +7,8 @@ import jobRoute from './routes/job.route';
 
 import { globalErrorHandler } from './middlewares/error.middleware';
 
+import rateLimit from 'express-rate-limit';
+
 class App {
   public app: Application;
 
@@ -18,6 +20,16 @@ class App {
   }
 
   private initializeMiddlewares() {
+    // Basic Rate Limiting
+    const limiter = rateLimit({
+      windowMs: 15 * 60 * 1000, // 15 minutes
+      max: 100, // limit each IP to 100 requests per windowMs
+      message: 'Too many requests from this IP, please try again after 15 minutes',
+      standardHeaders: true,
+      legacyHeaders: false,
+    });
+
+    this.app.use(limiter);
     this.app.use(cors());
     this.app.use(helmet());
     this.app.use(morgan('dev'));
