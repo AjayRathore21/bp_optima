@@ -1,14 +1,47 @@
-export const logger = {
-  info: (message: string) => {
-    const timestamp = new Date().toISOString();
-    console.log(`[INFO] ${timestamp}: ${message}`);
-  },
-  error: (message: string, error?: any) => {
-    const timestamp = new Date().toISOString();
-    console.error(`[ERROR] ${timestamp}: ${message}`, error || '');
-  },
-  warn: (message: string) => {
-    const timestamp = new Date().toISOString();
-    console.warn(`[WARN] ${timestamp}: ${message}`);
-  }
-};
+import winston from 'winston';
+import fs from 'fs';
+import path from 'path';
+
+// Log directory path
+const logDir = path.join(process.cwd(), 'logs');
+
+// Create the log directory if it does not exist
+if (!fs.existsSync(logDir)) {
+  fs.mkdirSync(logDir);
+}
+
+// Define log format
+const logFormat = winston.format.printf(({ timestamp, level, message }: any) => {
+  return `${timestamp} [${level.toUpperCase()}]: ${message}`;
+});
+
+/**
+ * Configure Winston Logger
+ */
+const logger = winston.createLogger({
+  format: winston.format.combine(
+    winston.format.timestamp({ format: 'YYYY-MM-DD HH:mm:ss' }),
+    logFormat
+  ),
+  transports: [
+    // Console output
+    new winston.transports.Console({
+      format: winston.format.combine(
+        winston.format.colorize(),
+        winston.format.simple()
+      ),
+    }),
+    // Debug log file
+    new winston.transports.File({
+      filename: path.join(logDir, 'debug.log'),
+      level: 'debug',
+    }),
+    // Error log file
+    new winston.transports.File({
+      filename: path.join(logDir, 'error.log'),
+      level: 'error',
+    }),
+  ],
+});
+
+export { logger };

@@ -3,8 +3,10 @@ import JobService from './services/job.service';
 import { connection } from './queue/queue';
 import { logger } from './utils/logger';
 import dotenv from 'dotenv';
+import { connectDB } from './utils/database';
 
 dotenv.config();
+connectDB();
 
 /**
  * Helper to simulate random delay

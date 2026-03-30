@@ -5,6 +5,8 @@ import morgan from 'morgan';
 import healthRoute from './routes/health.route';
 import jobRoute from './routes/job.route';
 
+import { globalErrorHandler } from './middlewares/error.middleware';
+
 class App {
   public app: Application;
 
@@ -30,17 +32,13 @@ class App {
   }
 
   private initializeErrorHandling() {
-    // A basic 404 handler
+    // 404 handler
     this.app.use((req, res, next) => {
       res.status(404).json({ message: 'Resource not found' });
     });
 
-    // A basic global error handler
-    this.app.use((error: any, req: express.Request, res: express.Response, next: express.NextFunction) => {
-      const status = error.status || 500;
-      const message = error.message || 'Something went wrong';
-      res.status(status).json({ message });
-    });
+    // Global error listener
+    this.app.use(globalErrorHandler);
   }
 }
 
