@@ -56,6 +56,12 @@ REDIS_PORT=6379
 NODE_ENV=development
 ```
 
+### 3. Database Setup (Temporary Testing URL)
+For testing purposes, you can use the following temporary MongoDB Atlas URL (for review only; this will be deleted later):
+```bash
+mongodb+srv://ajjubhaiar0_db_user:D5X0XfDJODQno0BN@cluster0.j9bcxtf.mongodb.net/?appName=Cluster0
+```
+
 ---
 
 ## 🚀 How to Run
