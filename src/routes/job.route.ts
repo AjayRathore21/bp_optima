@@ -1,17 +1,16 @@
 import { Router } from 'express';
-import JobController from '../controllers/job.controller';
+import jobController from '../controllers/job.controller';
 import { upload } from '../utils/multer';
 
 const router = Router();
-const jobController = new JobController();
 
-// POST /jobs (Accepts both file upload and JSON url)
+// POST /jobs - Add a document processing job (via URL or direct upload)
 router.post('/', upload.single('file'), jobController.createJob);
 
-// GET /jobs (List all jobs)
+// GET /jobs - List all current and completed jobs
 router.get('/', jobController.listJobs);
 
-// GET /jobs/:id (Get job by ID)
+// GET /jobs/:id - Detailed job status, metrics, and results
 router.get('/:id', jobController.getJob);
 
 export default router;

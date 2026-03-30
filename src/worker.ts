@@ -24,7 +24,7 @@ const worker = new Worker(
 
     try {
       // 1. Update status to "processing"
-      await JobService.updateJob(jobId, {
+      await JobService.updateJobInfo(jobId, {
         status: 'processing',
         startedAt: new Date(),
       });
@@ -41,7 +41,7 @@ const worker = new Worker(
       };
 
       // 4. Update status to "completed"
-      const updatedJob = await JobService.updateJob(jobId, {
+      const updatedJob = await JobService.updateJobInfo(jobId, {
         status: 'completed',
         completedAt: new Date(),
         result,
@@ -67,7 +67,7 @@ const worker = new Worker(
       logger.error(`Error processing job ${jobId}: ${error.message}`);
       
       // Update status to "failed"
-      await JobService.updateJob(jobId, {
+      await JobService.updateJobInfo(jobId, {
         status: 'failed',
       });
 

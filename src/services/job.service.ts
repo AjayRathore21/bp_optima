@@ -1,49 +1,51 @@
-import Job, { IJob, CreateJobDto, UpdateJobDto } from '../models/job.model';
+import { IJob, ICreateJobDTO, IUpdateJobDTO } from '../interfaces/job.interface';
+import JobRepository from '../repositories/job.repository';
 import { addJobToQueue } from '../queue/queue';
+import { logger } from '../utils/logger';
 
+/**
+ * Service Layer: Orchestrates business logic across repositories and queues
+ */
 class JobService {
   /**
-   * Create a new job and store it in MongoDB, then add it to BullMQ
+   * High-level job creation including database save and queuing
    */
-  public async createJob(data: CreateJobDto): Promise<IJob> {
-    const newJob = new Job({
-      fileUrl: data.fileUrl,
-      webhookUrl: data.webhookUrl,
-      fileName: data.fileName,
-      originalName: data.originalName,
-      fileType: data.fileType,
-      status: 'queued',
-      attempts: 0,
-    });
+  public async createJob(data: ICreateJobDTO): Promise<IJob> {
+    try {
+      // 1. Persist initial record (status and attempts use schema defaults)
+      const job = await JobRepository.create(data);
 
-    const savedJob = await newJob.save();
+      // 2. Add to asynchronous processing queue
+      const queueInput = job.fileUrl || job.fileName;
+      await addJobToQueue(job._id.toString(), queueInput);
 
-    // Add to BullMQ
-    // Add explicitly to handle potential undefined
-    await addJobToQueue(savedJob._id.toString(), savedJob.fileUrl || savedJob.fileName);
-
-    return savedJob;
+      logger.info(`System-wide Job Created: ${job._id}`);
+      return job;
+    } catch (error: any) {
+      logger.error(`Logic Failure in createJob: ${error.message}`);
+      throw error;
+    }
   }
 
   /**
-   * Retrieve a job by its unique ID
+   * Find an existing job's technical and process details
    */
-  public async getJobById(id: string): Promise<IJob | null> {
-    return await Job.findById(id);
+  public async getJob(id: string): Promise<IJob | null> {
+    return await JobRepository.findById(id);
   }
 
   /**
-   * Update an existing job's status or details
+   * Update the status or processing results of a job
    */
-  public async updateJob(id: string, updateData: UpdateJobDto): Promise<IJob | null> {
-    return await Job.findByIdAndUpdate(id, updateData, { new: true });
+  public async updateJobInfo(id: string, updateData: IUpdateJobDTO): Promise<IJob | null> {
+    return await JobRepository.update(id, updateData);
   }
 
   /**
-   * List all jobs (utility)
+   * Retrieve a collection of all system jobs
    */
-  public async getAllJobs(): Promise<IJob[]> {
-    return await Job.find().sort({ createdAt: -1 });
+  public async listAllJobs(): Promise<IJob[]> {
+    return await JobRepository.findAll();
   }
 }
 

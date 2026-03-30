@@ -7,6 +7,7 @@
     "start": "node dist/server.js",
     "dev": "nodemon src/server.ts",
     "worker": "nodemon src/worker.ts",
+    "start:worker": "node dist/worker.js",
     "build": "rimraf dist && tsc",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
